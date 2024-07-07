@@ -9,13 +9,16 @@ from sklearn.model_selection import cross_val_score
 #Import data
 def read_data_from(data_link):
     data =pd.read_csv(data_link, header= None)
-    #print(data.columns) 
+    print(data.columns)
+    data.columns = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
+
     X = data[['sepal length', 'sepal width', 'petal length', 'petal width']]
     Y = data['class']
     return X, Y
 
-def test_model(r_loop, split_number):
+def test_model(r_loop):
     seed = 1
+    split_number = 10
     bayes_model = GaussianNB()
     knn_model = KNeighborsClassifier(n_neighbors=1)
     acc_bayes = []
@@ -54,3 +57,4 @@ def test_model(r_loop, split_number):
     pd.to_csv("AccuracyOfMoodel.csv", index = True)
     print("################")
  
+test_model(30)
