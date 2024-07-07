@@ -7,54 +7,52 @@ from sklearn.model_selection import cross_val_score
 
 
 #Import data
-def read_data_from(data_link):
-    data =pd.read_csv(data_link, header= None)
-    print(data.columns)
-    data.columns = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
+data = pd.read_csv('http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data',header=None)
+data.columns = ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
 
-    X = data[['sepal length', 'sepal width', 'petal length', 'petal width']]
-    Y = data['class']
-    return X, Y
+X = data[['sepal length', 'sepal width', 'petal length', 'petal width']]
+Y = data['class']
 
-def test_model(r_loop):
-    seed = 1
-    split_number = 10
-    bayes_model = GaussianNB()
-    knn_model = KNeighborsClassifier(n_neighbors=1)
-    acc_bayes = []
-    acc_knn = []
 
-    knn_model = KNeighborsClassifier(n_neighbors=1)
-    X, Y = read_data_from('http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data')
+i = 0
+seed = 1
+split_number = 10
 
-    for i in range(r_loop):
+bayes_model = GaussianNB()
+knn_model = KNeighborsClassifier(n_neighbors=1)
+
+acc_bayes_list = []
+acc_knn_list = []
+
+
+for i in range(30):
+    seed += 1
+
+    #10 fold train
+    cv = KFold(n_splits= split_number, random_state= seed, shuffle= True)
         
-        #10 fold train
-        cv = KFold(n_splits= split_number, random_state= seed, shuffle= True)
-        
-        #accuracy of bayes
-        bayes_acc = cross_val_score(bayes_model, X, Y, cv=cv)
-        acc_bayes.append(bayes_acc)
+    #accuracy of bayes
+    bayes_acc = cross_val_score(bayes_model, X, Y, cv=cv)
+    acc_bayes_list.append(bayes_acc)
 
-        #accuracy of bayes
-        knn_acc = cross_val_score(knn_model, X, Y, cv=cv)
-        acc_knn.append(knn_acc)
+    #accuracy of bayes
+    knn_acc = cross_val_score(knn_model, X, Y, cv=cv)
+    acc_knn_list.append(knn_acc)
 
-        #Rotage seed, add i
-        seed += 1
-        i+=1
+    #Rotage seed, add i
+    i+=1
     
-    avr_bayes = np.mean(acc_bayes)
-    avr_knn = np.mean(acc_knn)
+avr_bayes = np.mean(acc_bayes_list)
+avr_knn = np.mean(acc_knn_list)
 
-    #print output
-    print(f"Accuracy of Bayes: {avr_bayes:.2f}")
-    print(f"Accuracy of KNN: {avr_knn:.2f}")
+#print output
+print(f"Accuracy of Bayes: {avr_bayes:.4f}")
+print(f"Accuracy of KNN: {avr_knn:.4f}")
 
-    #Put data into excel
-    out_df = {"AVR_Bayes": avr_bayes,
-              "AVR_KNN": avr_knn}
-    pd.to_csv("AccuracyOfMoodel.csv", index = True)
-    print("################")
+#Put data into excel
+out_df = {"AVR_Bayes": acc_bayes_list,
+              "AVR_KNN": acc_knn_list,}
+df = pd.DataFrame(out_df)
+df.to_csv("AccuracyOfMoodel.csv", index = True)
+print("################")
  
-test_model(30)
