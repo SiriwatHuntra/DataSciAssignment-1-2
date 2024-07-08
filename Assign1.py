@@ -26,6 +26,7 @@ acc_knn_list = []
 
 
 for i in range(30):
+    #Rotage seed
     seed += 1
 
     #10 fold train
@@ -39,7 +40,6 @@ for i in range(30):
     knn_acc = cross_val_score(knn_model, X, Y, cv=cv)
     acc_knn_list.append(knn_acc)
 
-    #Rotage seed, add i
     i+=1
     
 avr_bayes = np.mean(acc_bayes_list)
